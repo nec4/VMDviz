@@ -23,6 +23,7 @@ All dependencies should be available through your favorite package manager.
 1. vmd-python 3.0+
 2. vmd
 3. numpy
+4. ImageMagick
 
 ### Installation
 
