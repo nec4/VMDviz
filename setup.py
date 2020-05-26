@@ -8,6 +8,8 @@ VERSION = '0.0'
 class InstallScript(install):
     def run(self):
         install.run(self)
+        os.system('chmod u+x scripts/gen_rc.sh')
+        os.system('scripts/gen_rc.sh')
 
 def read(filename):
     import os
@@ -39,8 +41,6 @@ setup(
         ],
     },
     scripts = [
-        'scripts/postscript_movie.sh',
-        'scripts/snapshot_movie.sh',
-        'scripts/tachyon_movie.sh',
+        'scripts/tachyon_movie.sh'
     ]
     )

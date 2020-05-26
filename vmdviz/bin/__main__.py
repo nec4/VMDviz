@@ -1,7 +1,7 @@
 from vmdviz.tools import *
 import sys
 import argparse
-
+import json
 
 def main():
     """simple script for producing rotation movies of the
@@ -19,8 +19,11 @@ def main():
                  'stride' : options.stride,
                  'waitfor' : -1}
 
+    runtime_config = load_rc(options.rcfile)
+    render_options = runtime_config['rendering']
+
     # VDMmolecule creation
-    model = VMDMolecule(options.pdbfile, style=[CG_STYLE, BONDS_STYLE],
+    model = VMDMolecule(options.pdbfile, style=runtime_config['styles'],
                         load_data=load_data, flush_pdb_frame=True)
 
     # CA backbone bonds
@@ -41,26 +44,64 @@ def main():
 
     axes.set_location('OFF')
     display.update()
-    generate_rotation_movie(model, options.basename + "_init_rotate" +
-                            "_step_{}".format(options.anglestep),
+
+    init_rotate_filename = options.basename + "_init_rotate_step_{}".format(options.anglestep)
+    final_rotate_filename = options.basename + "_final_rotate_step_{}".format(options.anglestep)
+    traj_filename = options.basename + "_traj_stride_{}".format(options.stride) + "_step_{}".format(options.trajstep) + "_smoothing_{}".format(options.smoothing)
+
+    generate_rotation_movie(model, init_rotate_filename, frame=0,
                             save_dir=options.savedir,
                             division=options.anglestep,
-                            create_outfile=True, frame=0)
-    generate_rotation_movie(model, options.basename + "_final_rotate" +
-                            "_step_{}".format(options.anglestep),
+                            create_movie=True,
+                            movie_script=render_options['movie_script'],
+                            renderer=render_options['renderer'],
+                            render_ext=render_options['render_extension'],
+                            movie_script_args=[init_rotate_filename, options.savedir])
+
+    generate_rotation_movie(model, final_rotate_filename, frame=-1,
                             save_dir=options.savedir,
                             division=options.anglestep,
-                            create_outfile=True, frame=-1)
-    generate_trajectory_movie(model, options.basename + "_traj" +
-                              "_stride_{}".format(options.stride) +
-                              "_step_{}".format(options.trajstep) +
-                              "_smoothing_{}".format(options.smoothing),
+                            create_movie=True,
+                            movie_script=render_options['movie_script'],
+                            renderer=render_options['renderer'],
+                            render_ext=render_options['render_extension'],
+                            movie_script_args=[final_rotate_filename, options.savedir])
+
+    generate_trajectory_movie(model, traj_filename,
                               save_dir=options.savedir,
                               start=0, stop=-1, step=options.trajstep,
-                              smoothing=options.smoothing)
+                              smoothing=options.smoothing,
+                              create_movie=True,
+                              movie_script=render_options['movie_script'],
+                              renderer=render_options['renderer'],
+                              render_ext=render_options['render_extension'],
+                              movie_script_args=[traj_filename, options.savedir])
+
+
+def load_rc(rc_file):
+    """Helper function to load runtime configuration file
+
+    Parameters
+    ----------
+    rc_file : str
+        Filepath for runtime configuration file. This file must be a valid
+        JSON file.
+
+    Returns
+    -------
+    runtime_config : dict
+        dictionary of runtime configuration options relating to rendering
+        and molecule styles.
+    """
+
+    with open(rc_file) as jfile:
+        runtime_config = json.load(jfile)
+    return runtime_config
 
 
 def argparser(args):
+    HOME = os.path.expanduser("~")
+    print(HOME)
     parser = argparse.ArgumentParser(description='automated video production for '
                             'protein trajectory movies, creating rotation '
                             'movies for initial and final configurations '
@@ -82,6 +123,8 @@ def argparser(args):
                         default=1, type=int)
     parser.add_argument("--smoothing", help="smoothing window size for movie rendering",
                         default=0, type=int)
+    parser.add_argument("--rcfile", help="runtime configuration file that defines style "
+                        "and rendering options", default=HOME + '/.vmdvizrc.json')
     return parser.parse_args(args)
 
 

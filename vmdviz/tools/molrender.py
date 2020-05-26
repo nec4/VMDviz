@@ -14,18 +14,6 @@ import os
 import numpy as np
 import subprocess
 
-RENDERER = 'Tachyon'
-RENDER_EXT = 'dat'
-
-CG_STYLE = {'style' : ' VDW 4.000000 24',
-            'color' : 'index',
-            'selection' : 'all',
-            'material' : 'Diffuse'}
-
-BONDS_STYLE = {'style' : 'Bonds 2.5 24',
-               'color' : 'index',
-               'selection' : 'all',
-               'material' : 'Diffuse'}
 
 def dir_check(dirname):
     """Helper function to check if a directory exists or not,
@@ -83,7 +71,9 @@ def generate_bonds(molid, indices):
 
 
 def generate_rotation_movie(molecule, filename, save_dir='.', frame=0,
-                            angle=360, division=1.0, create_outfile=True):
+                            angle=360, division=1.0, create_movie=True,
+                            renderer='Tachyon', render_ext='dat',
+                            movie_script=None, movie_script_args=None):
     """Function for generating movies where a static molecule frame is
     rotated through an angle. Individual files for each subrotation
     are generated, which can then be processed and combined into a
@@ -103,13 +93,25 @@ def generate_rotation_movie(molecule, filename, save_dir='.', frame=0,
         The angle through which the molecule is rotated through.
     division : float (default=1.0)
         The angular (degree) for each subrotation.
-    create_outfile : Boolean (default=False)
-        If True, the individual outp image files will be combined
+    renderer : str (default='Tachyon')
+        Program for rendering individual images. Must be a valid
+        rendering program bundled with VMD. For available rendering
+        programs, see:
+
+            https://www.ks.uiuc.edu/Research/vmd/vmd-1.7.1/ug/node89.html
+    render_ext : str (default='dat')
+        filename extension for indivudally rendered files.
+    create_movie : Boolean (default=False)
+        If True, the individual output image files will be combined
         into an mpeg movie file through the use of ImageMagick's
         'convert' utility. This is acheived through a subprocess
         call to the bash script 'tachyon_movie.sh'. Note that all
         intermediate tachyon data files and subrotation image files
         will be erased after the final movie is created.
+    movie_script : str (default=None)
+        External script for collating rendered images into movies
+    movie_script_args : list of str (default=None)
+        Arguments for external script
     """
 
     check = dir_check(save_dir)
@@ -127,25 +129,20 @@ def generate_rotation_movie(molecule, filename, save_dir='.', frame=0,
         sub_rotations = int(angle / division)
         current_angle = 0.0
         for i in range(0,sub_rotations):
-            render.render(RENDERER, save_dir + '/' + filename +
-                          '{:0>9}.{}'.format(int(i), RENDER_EXT))
+            render.render(renderer, save_dir + '/' + filename +
+                          '{:0>9}.{}'.format(int(i), render_ext))
             trans.rotate_scene('y', division)
             display.update()
             current_angle += division
-    if create_outfile:
-        if RENDERER == 'Tachyon':
-            subprocess.run("tachyon_movie.sh "+filename+" "+save_dir,
-                           shell=True)
-        if RENDERER == 'snapshot':
-            subprocess.run("snapshot_movie.sh "+filename+" "+save_dir,
-                           shell=True)
-        if RENDERER == 'PostScript':
-            subprocess.run("postscript_movie.sh "+filename+" "+save_dir,
-                           shell=True)
+    if create_movie:
+        subprocess.run(movie_script + " " + " ".join(movie_script_args),
+                       shell=True)
 
 
 def generate_trajectory_movie(molecule, filename, save_dir='.', start=0, stop=-1,
-                              step=1, create_outfile=True, smoothing=0):
+                              step=1, create_movie=True, smoothing=0,
+                              movie_script=None, movie_script_args=None,
+                              renderer='Tachyon', render_ext='dat'):
     """Function for generating movies of molecular trajectories
 
     Parameters
@@ -162,7 +159,7 @@ def generate_trajectory_movie(molecule, filename, save_dir='.', start=0, stop=-1
         The ending frame
     step : float (default=1.0)
         The the step stride of the loaded frames
-    create_outfile : Boolean (default=False)
+    create_movie : Boolean (default=False)
         If True, the individual outp image files will be combined
         into an mpeg movie file through the use of ImageMagick's
         'convert' utility. This is acheived through a subprocess
@@ -172,6 +169,19 @@ def generate_trajectory_movie(molecule, filename, save_dir='.', start=0, stop=-1
     smoothing : int (default=0)
         Size of smoothing window in frames to be applied to all
         representations of the VMDMolecule
+    renderer : str (default='Tachyon')
+        Program for rendering individual images. Must be a valid
+        rendering program bundled with VMD. For available rendering
+        programs, see:
+
+            https://www.ks.uiuc.edu/Research/vmd/vmd-1.7.1/ug/node89.html
+
+    render_ext : str (default='dat')
+        filename extension for indivudally rendered files.
+    movie_script : str (default=None)
+        External script for collating rendered images into movies
+    movie_script_args : list of str (default=None)
+        Arguments for external script
     """
 
     # Perform checks
@@ -202,15 +212,11 @@ def generate_trajectory_movie(molecule, filename, save_dir='.', start=0, stop=-1
     for i in frames:
         mol.set_frame(molecule.molid, i)
         display.update()
-        render.render(RENDERER, save_dir + '/' + filename +
-                      '_{:0>9}.{}'.format(int(i), RENDER_EXT))
-    if create_outfile:
-        if RENDERER == 'Tachyon':
-            subprocess.run("tachyon_movie.sh "+filename+" "+save_dir,
-                           shell=True)
-        if RENDERER == 'snapshot':
-            subprocess.run("snapshot_movie.sh "+filename+" "+save_dir,
-                           shell=True)
+        render.render(renderer, save_dir + '/' + filename +
+                      '_{:0>9}.{}'.format(int(i), render_ext))
+    if create_movie:
+        subprocess.run(movie_script + " " + " ".join(movie_script_args),
+                       shell=True)
 
 
 class VMDMolecule():
