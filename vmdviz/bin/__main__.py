@@ -52,30 +52,21 @@ def main():
     generate_rotation_movie(model, init_rotate_filename, frame=0,
                             save_dir=options.savedir,
                             division=options.anglestep,
-                            create_movie=True,
-                            movie_script=render_options['movie_script'],
                             renderer=render_options['renderer'],
-                            render_ext=render_options['render_extension'],
-                            movie_script_args=[init_rotate_filename, options.savedir])
+                            render_ext=render_options['render_extension'])
 
     generate_rotation_movie(model, final_rotate_filename, frame=-1,
                             save_dir=options.savedir,
                             division=options.anglestep,
-                            create_movie=True,
-                            movie_script=render_options['movie_script'],
                             renderer=render_options['renderer'],
-                            render_ext=render_options['render_extension'],
-                            movie_script_args=[final_rotate_filename, options.savedir])
+                            render_ext=render_options['render_extension'])
 
     generate_trajectory_movie(model, traj_filename,
                               save_dir=options.savedir,
                               start=0, stop=-1, step=options.trajstep,
                               smoothing=options.smoothing,
-                              create_movie=True,
-                              movie_script=render_options['movie_script'],
                               renderer=render_options['renderer'],
-                              render_ext=render_options['render_extension'],
-                              movie_script_args=[traj_filename, options.savedir])
+                              render_ext=render_options['render_extension'])
 
 
 def load_rc(rc_file):

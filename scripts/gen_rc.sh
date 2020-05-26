@@ -27,7 +27,6 @@ if [ ! -f "$rc" ]; then
     {
       "renderer" : "Tachyon",
 	  "render_extension" : "dat",
-      "movie_script" : "tachyon_movie.sh",
     }
 }
 EOF

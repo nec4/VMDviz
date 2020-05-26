@@ -37,6 +37,21 @@ For script info, run:
 
 `$ vmdviz -h`
 
+Molecular styles, scene, rendering, and movie production options are specified
+in a runtime configuration file (created upon install at `$HOME/.vmdvizrc.json`).
+This file is written in human-readable JSON, which is easily loaded as a python
+dictionary. 
+
+VMD saves movies as a bunch of images and uses external software to collate
+them into the final file. Here, we offer the flexibility for the user to use
+their favorite CLI movie tool (eg,
+[ImageMagick](https://imagemagick.org/index.php), 
+[ffmpeg](https://ffmpeg.org/), etc). For [security
+reasons](https://www.kevinlondon.com/2015/07/26/dangerous-python-functions.html),
+actual collation of the image files rendered by VMD is decoupled from VMDviz.
+For an example of post-processing, a BASH script `tachyon_movie.sh` is offered in
+`scripts/`.
+
 ### Help
 
 For help on a particular function/class, please run `help(function/class)`, or
