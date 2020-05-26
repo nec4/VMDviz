@@ -42,7 +42,7 @@ default_rc = {
       "render_extension" : "dat"
     }
 }
-print(default_rc)
+
 if not os.path.exists(rc):
     with open(rc, 'w') as jfile:
         json.dump(default_rc, jfile, indent=4)
