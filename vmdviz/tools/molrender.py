@@ -189,6 +189,24 @@ def generate_trajectory_movie(molecule, filename, save_dir='.', start=0, stop=-1
                       '_{:0>9}.{}'.format(int(i), render_ext))
 
 
+def init_display(display_options):
+    """Function for initializing VMD scene options
+
+    Parameters
+    ----------
+    display_options : dict
+        scene/display options for VMD. These are specified as key-value
+        pairs for each attribute in the VMD display options list. For
+        this complete list, see the following:
+
+            https://www.ks.uiuc.edu/Research/vmd/current/ug/node126.html
+
+    """
+
+    display.set(**display_options)
+    display.update()
+
+
 class VMDMolecule():
     """Class for wrapping VMD molecule functionalities
 

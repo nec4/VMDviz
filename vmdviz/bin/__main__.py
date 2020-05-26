@@ -42,8 +42,7 @@ def main():
     generate_bonds(model.molid, backbone_bonds)
     generate_bonds(model.molid, CA_CB_bonds)
 
-    axes.set_location('OFF')
-    display.update()
+    init_display(runtime_config['display'])
 
     init_rotate_filename = options.basename + "_init_rotate_step_{}".format(options.anglestep)
     final_rotate_filename = options.basename + "_final_rotate_step_{}".format(options.anglestep)

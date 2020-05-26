@@ -23,10 +23,16 @@ if [ ! -f "$rc" ]; then
 		"material" : "Diffuse"
 	  }
     ],
+  "display" : 
+    {
+    },
+  "colors" :
+    {
+    },
   "rendering" : 
     {
       "renderer" : "Tachyon",
-	  "render_extension" : "dat",
+	  "render_extension" : "dat"
     }
 }
 EOF
