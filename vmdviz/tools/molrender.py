@@ -189,7 +189,7 @@ def generate_trajectory_movie(molecule, filename, save_dir='.', start=0, stop=-1
                       '_{:0>9}.{}'.format(int(i), render_ext))
 
 
-def init_display(display_options):
+def init_display(display_options, axes_options):
     """Function for initializing VMD scene options
 
     Parameters
@@ -204,6 +204,8 @@ def init_display(display_options):
     """
 
     display.set(**display_options)
+    if 'set_location' in axes_options.keys():
+        axes.set_location(axes_options['set_location'])
     display.update()
 
 

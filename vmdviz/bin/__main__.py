@@ -19,7 +19,7 @@ def main():
                  'stride' : options.stride,
                  'waitfor' : -1}
 
-    runtime_config = load_rc(options.rcfile)
+    runtime_config = load_rc(options.rcfile, )
     render_options = runtime_config['rendering']
 
     # VDMmolecule creation
@@ -42,7 +42,7 @@ def main():
     generate_bonds(model.molid, backbone_bonds)
     generate_bonds(model.molid, CA_CB_bonds)
 
-    init_display(runtime_config['display'])
+    init_display(runtime_config['display'], runtime_config['axes'])
 
     init_rotate_filename = options.basename + "_init_rotate_step_{}".format(options.anglestep)
     final_rotate_filename = options.basename + "_final_rotate_step_{}".format(options.anglestep)
@@ -91,7 +91,6 @@ def load_rc(rc_file):
 
 def argparser(args):
     HOME = os.path.expanduser("~")
-    print(HOME)
     parser = argparse.ArgumentParser(description='automated video production for '
                             'protein trajectory movies, creating rotation '
                             'movies for initial and final configurations '
