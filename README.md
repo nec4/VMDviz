@@ -2,7 +2,9 @@
 ### Python automation for creating molecular trajectory movies 
 
 ---
-
+<p align="center">
+<img src='demo_1.gif' width=900px>
+</p>
 ### About
 
 [VMD](https://www.ks.uiuc.edu/Research/vmd/) is a powerful and flexible
