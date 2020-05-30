@@ -3,7 +3,7 @@
 
 ---
 <p align="center">
-<img src='demo_1.gif' width=500px>
+<img src='demo_1.gif' width=900px>
 </p>
 ### About
 
