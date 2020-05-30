@@ -5,6 +5,7 @@
 <p align="center">
 <img src='demo_1.gif' width=900px>
 </p>
+
 ---
 
 ### About
@@ -28,7 +29,7 @@ All dependencies should be available through your favorite package manager.
 2. vmd
 3. numpy
 4. ImageMagick
-5. OpenCV 3+
+5. OpenCV 3.0+
 
 ### Installation
 
