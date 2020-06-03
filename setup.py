@@ -37,7 +37,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'vmdviz = vmdviz.bin.__main__:main'
+            'vmdviz_render = vmdviz.bin.vmdviz_render:main',
+            'movie_combine = vmdviz.bin.movie_combine:main'
         ],
     },
     scripts = [

@@ -117,5 +117,5 @@ def argparser(args):
     return parser.parse_args(args)
 
 
-if __name__ == '__main__':
+if __name__ == 'vmdviz_render':
     main()

@@ -21,12 +21,18 @@ class Dashboard():
         self.current_indices = [0 for _ in self.movie_list]
         self.num_frames = [movie.get(cv2.CAP_PROP_FRAME_COUNT)
                            for movie in self.movie_list]
-        self.labels = labels
+        if labels == None:
+            self.labels = len(self.movie_list) * [""]
+        else:
+            self.labels = labels
         self.frames = [None for _ in self.movie_list]
+        self.set_framesize()
+
 
     def load_movie(self, movie_file):
         """Load method using OpenCV"""
         return cv2.VideoCapture(movie_file)
+
 
     def reset_movies(self):
         """Method that resets all movies in self.movie_list
@@ -35,6 +41,7 @@ class Dashboard():
         for num, movie in enumerate(self.movie_list):
             self.current_indices[num] = 0
             movie.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
 
     def set_movies(self, frame_idx):
         """Method for setting the global frame index for all
@@ -52,10 +59,12 @@ class Dashboard():
                 self.current_indices[num] = frame_idx
                 movie.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
 
+
     def release_movies(self):
         """Method that releases all movies in self.movie_list"""
         for movie in self.movie_list:
             movie.release()
+
 
     def read_frames(self):
         """Method for reading frames for all videos and returning
@@ -80,7 +89,25 @@ class Dashboard():
                 statuses[num] = False
         return statuses
 
-    def display_frames(self):
+
+    def set_framesize(self):
+        statuses = [False for _ in self.movie_list]
+
+        for num, (movie, current_idx, num_frames) in enumerate(zip(self.movie_list,
+                            self.current_indices, self.num_frames)):
+            status, frame = movie.read()
+            if status:
+                self.frames[num] = frame
+            else:
+                statuses[num] = False
+        final = cv2.hconcat(self.frames)
+
+        # Due to openCV framesize conventions, the x-y dimensions
+        # must be swapped
+        self.window_size = (final.shape[:-1][1], final.shape[:-1][0])
+
+
+    def display_frames(self, write=None):
         """Method for displaying individual frames for each movie in
         self.movie_list within a single window
         """
@@ -89,6 +116,9 @@ class Dashboard():
                         1, (255, 255, 255), 1)
         final = cv2.hconcat(self.frames)
         cv2.imshow('Frame', final)
+        if write:
+            write.write(final)
+
 
     def play_movies(self):
         """Method that loops all movies together in a single window.
@@ -136,8 +166,6 @@ class Dashboard():
                         # Reverse single frame
                         if movie_key == ord('h'):
                             new_index = max(self.current_indices) - 2
-                            print(new_index)
-                            print(self.current_indices)
                             self.set_movies(new_index)
                             statuses = self.read_frames()
                             self.display_frames()
@@ -155,3 +183,26 @@ class Dashboard():
                 statuses = [False for _ in self.movie_list]
                 continue
 
+
+    def write_movie(self, filename, fourcc='MJPG'):
+        """Method for writing combined movies to file"""
+        cv2.startWindowThread()
+        print("Creating and exporting movie to file...")
+        outfile = cv2.VideoWriter(filename, 0,
+                                  fourcc=cv2.VideoWriter_fourcc(*fourcc),
+                                  fps=30, frameSize=self.window_size)
+        self.reset_movies()
+        movie_key = None
+        if outfile.isOpened():
+            while(np.all([movie.isOpened() for movie in self.movie_list])):
+                statuses = self.read_frames()
+                if np.any(statuses):
+                    self.display_frames(write=outfile)
+                else:
+                    self.release_movies()
+                    cv2.destroyAllWindows()
+                    cv2.waitKey(1)
+                    break
+            outfile.release()
+        else:
+            raise RuntimeError("outfile could not be opened.")
