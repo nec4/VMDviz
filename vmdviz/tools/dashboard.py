@@ -30,7 +30,13 @@ class Dashboard():
 
 
     def load_movie(self, movie_file):
-        """Load method using OpenCV"""
+        """Load method using OpenCV
+
+        Parameters
+        ----------
+        movie_file : str
+            Filename from which a movie is loaded.
+        """
         return cv2.VideoCapture(movie_file)
 
 
@@ -91,6 +97,9 @@ class Dashboard():
 
 
     def set_framesize(self):
+        """Method that determines the frame size of the final window
+        containing all of the movies in self.movie_list.
+        """
         statuses = [False for _ in self.movie_list]
 
         for num, (movie, current_idx, num_frames) in enumerate(zip(self.movie_list,
@@ -107,17 +116,23 @@ class Dashboard():
         self.window_size = (final.shape[:-1][1], final.shape[:-1][0])
 
 
-    def display_frames(self, write=None):
+    def display_frames(self, writer=None):
         """Method for displaying individual frames for each movie in
         self.movie_list within a single window
+
+        Parameters
+        ----------
+        writer : cv2.VideoWriter (default=None)
+            If not none, this video writer will be used to write the
+            movie to file.
         """
         for text, frame in zip(self.labels, self.frames):
             cv2.putText(frame, text, (100,50), self.font,
                         1, (255, 255, 255), 1)
         final = cv2.hconcat(self.frames)
         cv2.imshow('Frame', final)
-        if write:
-            write.write(final)
+        if writer:
+            writer.write(final)
 
 
     def play_movies(self):
@@ -185,24 +200,37 @@ class Dashboard():
 
 
     def write_movie(self, filename, fourcc='MJPG'):
-        """Method for writing combined movies to file"""
+        """Method for writing combined movies to file
+
+        Parameters
+        ----------
+        filename : str
+            Name of the file to which the movie will be written.
+        fourcc : str
+            FOURCC vidoe format code used by the cv2.VideoWriter.
+            Depends on your system/.environment. For a list of
+            common FOURCC codes, see:
+
+                       https://www.fourcc.org/
+
+        """
         cv2.startWindowThread()
         print("Creating and exporting movie to file...")
-        outfile = cv2.VideoWriter(filename, 0,
-                                  fourcc=cv2.VideoWriter_fourcc(*fourcc),
-                                  fps=30, frameSize=self.window_size)
+        writer = cv2.VideoWriter(filename, 0,
+                                 fourcc=cv2.VideoWriter_fourcc(*fourcc),
+                                 fps=30, frameSize=self.window_size)
         self.reset_movies()
         movie_key = None
-        if outfile.isOpened():
+        if writer.isOpened():
             while(np.all([movie.isOpened() for movie in self.movie_list])):
                 statuses = self.read_frames()
                 if np.any(statuses):
-                    self.display_frames(write=outfile)
+                    self.display_frames(writer=writer)
                 else:
                     self.release_movies()
                     cv2.destroyAllWindows()
                     cv2.waitKey(1)
                     break
-            outfile.release()
+            writer.release()
         else:
-            raise RuntimeError("outfile could not be opened.")
+            raise RuntimeError("VideoWriter could not be opened.")
