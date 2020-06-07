@@ -41,7 +41,11 @@ All dependencies should be available through your favorite package manager.
 
 For script info, run:
 
-`$ vmdviz -h`
+`$ vmdviz_render -h`
+
+or
+
+`$ movie_combine -h`
 
 Molecular styles, scene, rendering, and movie production options are specified
 in a runtime configuration file (created upon install at `$HOME/.vmdvizrc.json`).
